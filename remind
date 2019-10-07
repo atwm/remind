@@ -15,17 +15,36 @@ case "$1" in
 [0-9]*)
 	getTodo "$1"
 	alert_date=$(date -j -f "%Y-%m-%d" "+%m/%d/%Y" "$2")
-	alert_time=$(date -j -f "%H:%M" "+%I:%M%p" "$3") 
+	alert_time=$(date -j -f "%H:%M" "+%I:%M %p" "$3") 
 
 $TODO_SH append "$1" "#reminded"
 
-osascript - "$todo" "$alert_date" "$alert_time" <<END
+osascript - "$todo" "$2" "$3" <<END
+to convertDate(textDate)
+	set resultDate to the current date
+	
+	set the year of resultDate to (text 1 thru 4 of textDate)
+	set the month of resultDate to (text 6 thru 7 of textDate)
+    set the day of resultDate to (text 9 thru 10 of textDate)
+	set the time of resultDate to 0
+	
+	if (length of textDate) > 10 then
+		set the hours of resultDate to (text 12 thru 13 of textDate)
+		set the minutes of resultDate to (text 15 thru 16 of textDate)
+		
+		if (length of textDate) > 16 then
+			set the seconds of resultDate to (text 18 thru 19 of textDate)
+		end if
+	end if
+	return resultDate
+end convertDate
+
 on run argv
-    set stringedAll to date (item 2 of argv & " " & item 3 of argv)
+    set myDate to convertDate(item 2 of argv & " " & item 3 of argv)
     tell application "Reminders"
-	tell list "Reminders" of default account
-		make new reminder with properties {name:item 1 of argv, remind me date:stringedAll}
-	end tell
+        tell list "Reminders" of default account
+            make new reminder with properties {name:item 1 of argv, remind me date:myDate}
+        end tell
     end tell
 end run
 END
