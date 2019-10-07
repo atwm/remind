@@ -14,8 +14,6 @@ shift
 case "$1" in
 [0-9]*)
 	getTodo "$1"
-	alert_date=$(date -j -f "%Y-%m-%d" "+%m/%d/%Y" "$2")
-	alert_time=$(date -j -f "%H:%M" "+%I:%M %p" "$3") 
 
 $TODO_SH append "$1" "#reminded"
 
